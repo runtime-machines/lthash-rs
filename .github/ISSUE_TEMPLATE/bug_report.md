@@ -1,10 +1,9 @@
 ---
 name: Bug report
 about: Create a report to help us improve
-title: ''
+title: ""
 labels: bug
-assignees: ''
-
+assignees: ""
 ---
 
 ## Bug description
@@ -37,7 +36,7 @@ Steps to reproduce the behavior:
 <!-- Please fill the following information. -->
 
 - OS: [e.g. Ubuntu 20.04]
-- rust-template version: [e.g. 0.1.0]
+- lthash-rs version: [e.g. 0.1.0]
 
 ## Additional context
 

@@ -3,10 +3,9 @@ name: CD # Continuous Deployment
 on:
   push:
     tags:
-      - '[v]?[0-9]+.[0-9]+.[0-9]+'
+      - "[v]?[0-9]+.[0-9]+.[0-9]+"
 
 jobs:
-
   publish:
     name: Publishing for ${{ matrix.job.os }}
     runs-on: ${{ matrix.job.os }}
@@ -76,7 +75,7 @@ jobs:
           cd target/${{ matrix.job.target }}/release
 
           ####### reduce binary size by removing debug symbols #######
-          BINARY_NAME=rust-template${{ matrix.job.binary-postfix }}
+          BINARY_NAME=lthash-rs${{ matrix.job.binary-postfix }}
           if [[ ${{ matrix.job.target }} == aarch64-unknown-linux-gnu ]]; then
             GCC_PREFIX="aarch64-linux-gnu-"
           else
@@ -85,7 +84,7 @@ jobs:
           "$GCC_PREFIX"strip $BINARY_NAME
 
           ########## create tar.gz ##########
-          RELEASE_NAME=rust-template-${GITHUB_REF/refs\/tags\//}-${{ matrix.job.os-name }}-${{ matrix.job.architecture }}
+          RELEASE_NAME=lthash-rs-${GITHUB_REF/refs\/tags\//}-${{ matrix.job.os-name }}-${{ matrix.job.architecture }}
           tar czvf $RELEASE_NAME.tar.gz $BINARY_NAME
 
           ########## create sha256 ##########
@@ -98,8 +97,8 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            target/${{ matrix.job.target }}/release/rust-template-*.tar.gz
-            target/${{ matrix.job.target }}/release/rust-template-*.sha256
+            target/${{ matrix.job.target }}/release/lthash-rs-*.tar.gz
+            target/${{ matrix.job.target }}/release/lthash-rs-*.sha256
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
