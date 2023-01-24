@@ -29,6 +29,18 @@ where
     }
 }
 
+impl<T> Default for LtHash16<T>
+where
+    T: ExtendableOutput + Default,
+{
+    fn default() -> Self {
+        Self {
+            checksum: [0; 2048],
+            hasher: Default::default(),
+        }
+    }
+}
+
 impl<T> LtHash for LtHash16<T>
 where
     T: ExtendableOutput + Default,
@@ -37,8 +49,8 @@ where
         let hashed = self.hash_object(element);
         let mut i = 0;
         while i < 2048 {
-            let xi = &hashed[i..i + 2];
-            let yi = &self.checksum[i..i + 2];
+            let xi = &self.checksum[i..i + 2];
+            let yi = &hashed[i..i + 2];
             let xi = LittleEndian::read_u16(xi);
             let yi = LittleEndian::read_u16(yi);
             let sum = xi.wrapping_add(yi);
@@ -51,8 +63,8 @@ where
         let hashed = self.hash_object(element);
         let mut i = 0;
         while i < 2048 {
-            let xi = &hashed[i..i + 2];
-            let yi = &self.checksum[i..i + 2];
+            let xi = &self.checksum[i..i + 2];
+            let yi = &hashed[i..i + 2];
             let xi = LittleEndian::read_u16(xi);
             let yi = LittleEndian::read_u16(yi);
             let diff = xi.wrapping_sub(yi);
