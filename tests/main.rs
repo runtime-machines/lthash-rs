@@ -1,5 +1,5 @@
-use sha3::Shake256;
 use lthash_rs::lthash::LtHash;
+use sha3::Shake256;
 
 #[test]
 fn add_object() {
@@ -12,5 +12,5 @@ fn add_object() {
     let mut lthash_bis = lthash_rs::lthash::LtHash16::<Shake256>::default();
     lthash_bis.insert(elements[0]);
     lthash_bis.insert(elements[2]);
-    assert_eq!(lthash.checksum(),lthash_bis.checksum());
+    assert_eq!(lthash.checksum(), lthash_bis.checksum());
 }
