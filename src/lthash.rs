@@ -1,5 +1,6 @@
 use std::marker::PhantomData;
 
+use byteorder::{ByteOrder, LittleEndian};
 use digest::ExtendableOutput;
 
 pub trait LtHash {
@@ -34,15 +35,29 @@ where
 {
     fn insert(&mut self, element: impl AsRef<[u8]>) {
         let hashed = self.hash_object(element);
-        for (i, elem) in hashed.into_iter().enumerate() {
-            self.checksum[i] = self.checksum[i].wrapping_add(elem);
+        let mut i = 0;
+        while i < 2048 {
+            let xi = &hashed[i..i + 2];
+            let yi = &self.checksum[i..i + 2];
+            let xi = LittleEndian::read_u16(xi);
+            let yi = LittleEndian::read_u16(yi);
+            let sum = xi.wrapping_add(yi);
+            LittleEndian::write_u16(&mut self.checksum[i..i + 2], sum);
+            i += 2;
         }
     }
 
     fn remove(&mut self, element: impl AsRef<[u8]>) {
         let hashed = self.hash_object(element);
-        for (i, elem) in hashed.into_iter().enumerate() {
-            self.checksum[i] = self.checksum[i].wrapping_sub(elem);
+        let mut i = 0;
+        while i < 2048 {
+            let xi = &hashed[i..i + 2];
+            let yi = &self.checksum[i..i + 2];
+            let xi = LittleEndian::read_u16(xi);
+            let yi = LittleEndian::read_u16(yi);
+            let diff = xi.wrapping_sub(yi);
+            LittleEndian::write_u16(&mut self.checksum[i..i + 2], diff);
+            i += 2;
         }
     }
 

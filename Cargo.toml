@@ -12,3 +12,4 @@ readme = "README.md"
 
 [dependencies]
 digest = "0.10.6"
+byteorder = "1"
