@@ -5,6 +5,8 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
+  
 jobs:
   ci:
     name: CI Pipeline
@@ -30,19 +32,17 @@ jobs:
           toolchain: stable
           profile: minimal
           override: true
-          components: rustfmt, clippy
+          components: rustfmt, clippy, llvm-tools-preview
       
-      - name: Install Rust toolchain
-        uses: actions-rs/toolchain@v1
+      - name: Restore cached
+        id: cache-restore
+        uses: actions/cache/restore@v3
         with:
-          toolchain: nightly
-          profile: minimal
-      
-      # Cache .cargo and target dirs
-      - uses: Swatinem/rust-cache@v2
-
-      - name: Rustup stable
-        run: rustup default stable
+          path: |
+            ~/.cargo/
+            ./.cargo/
+            ./target/
+          key: ${{ runner.os }}-cargo-lock${{ hashFiles('**Cargo.lock') }}:toml${{ hashFiles('**Cargo.toml') }}
       
       # Run Format and Docs checks (without SQLX)
       - name: Check formatting
@@ -57,6 +57,14 @@ jobs:
         with:
           command: doc
           args: --no-deps --document-private-items --all-features --workspace --examples
+      
+      # Install grcov
+      - name: Install grcov
+        uses: actions-rs/cargo@v1
+        with:
+          command: install
+          args: >
+            grcov
 
       # Run clippy
       - name: Clippy check
@@ -64,7 +72,7 @@ jobs:
         with:
           command: clippy
           args: --all-targets --all-features --workspace -- -D warnings
-
+          
       # Run test
       - name: Cargo Test
         uses: actions-rs/cargo@v1
@@ -73,21 +81,21 @@ jobs:
           args: --all-features --workspace
         env: 
           ENVIRONMENT: local
+          RUSTFLAGS: -C instrument-coverage
 
-      # Run tests + coverage
-      - name: Coverage
-        uses: actions-rs/cargo@v1
+      - name: Save Cache
+        id: cache-save
+        uses: actions/cache/save@v3
         with:
-          command: test
-          args: --all-features --no-fail-fast --workspace
-          toolchain: nightly
-        env:
-          ENVIRONMENT: local
-          CARGO_INCREMENTAL: '0'
-          RUSTFLAGS: '-Zprofile -Ccodegen-units=1 -Copt-level=0 -Clink-dead-code -Coverflow-checks=off -Zpanic_abort_tests -Cpanic=abort'
-          RUSTDOCFLAGS: '-Zprofile -Ccodegen-units=1 -Copt-level=0 -Clink-dead-code -Coverflow-checks=off -Zpanic_abort_tests -Cpanic=abort'
+          path: |
+            ~/.cargo/
+            ./.cargo/
+            ./target/
+          key: ${{ steps.cache-restore.outputs.cache-primary-key }}
 
-      - uses: actions-rs/grcov@v0.1
+      - name: grcov
+        run: grcov . --binary-path ./target/debug/ -s . -t lcov --branch --ignore-not-existing --ignore "*cargo*" -o ./lcov.info
+
       - name: Codecov
         uses: codecov/codecov-action@v3
         with:
