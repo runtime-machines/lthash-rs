@@ -61,7 +61,7 @@ fn union() {
     let mut right = LtHash16::new();
     right.insert("world");
 
-    assert_eq!(left.union(&right), LtHash16::from_iter(&["hello", "world"]));
+    assert_eq!(left.union(&right), LtHash16::from_iter(["hello", "world"]));
 }
 
 #[test]
@@ -72,44 +72,44 @@ fn bitor() {
     let mut right = LtHash16::new();
     right.insert("world");
 
-    assert_eq!(&left | &right, LtHash16::from_iter(&["hello", "world"]));
-    assert_eq!(left | right, LtHash16::from_iter(&["hello", "world"]));
+    assert_eq!(&left | &right, LtHash16::from_iter(["hello", "world"]));
+    assert_eq!(left | right, LtHash16::from_iter(["hello", "world"]));
 }
 
 #[test]
 fn difference() {
     let mut left = LtHash16::new();
-    left.extend(&["hello", "world"]);
+    left.extend(["hello", "world"]);
 
     let mut right = LtHash16::new();
     right.insert("world");
 
-    assert_eq!(left.difference(&right), LtHash16::from_iter(&["hello"]));
+    assert_eq!(left.difference(&right), LtHash16::from_iter(["hello"]));
 }
 
 #[test]
 fn sub() {
     let mut left = LtHash16::new();
-    left.extend(&["hello", "world"]);
+    left.extend(["hello", "world"]);
 
     let mut right = LtHash16::new();
     right.insert("world");
 
-    assert_eq!(&left - &right, LtHash16::from_iter(&["hello"]));
-    assert_eq!(left - right, LtHash16::from_iter(&["hello"]));
+    assert_eq!(&left - &right, LtHash16::from_iter(["hello"]));
+    assert_eq!(left - right, LtHash16::from_iter(["hello"]));
 }
 
 #[test]
 fn into_from_bytes() {
     let mut left = LtHash16::new();
-    left.extend(&["hello", "world"]);
+    left.extend(["hello", "world"]);
 
     let bytes = left.into_bytes();
 
     let right = LtHash16::try_from(bytes.as_ref()).unwrap();
 
     let mut left = LtHash16::new();
-    left.extend(&["hello", "world"]);
+    left.extend(["hello", "world"]);
 
     assert_eq!(left, right);
 }
