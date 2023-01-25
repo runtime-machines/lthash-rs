@@ -1,16 +1,18 @@
 use std::marker::PhantomData;
 
-use byteorder::{ByteOrder, LittleEndian};
 use digest::ExtendableOutput;
+
+use crate::read_u16;
 
 pub trait LtHash {
     fn insert(&mut self, element: impl AsRef<[u8]>);
     fn remove(&mut self, element: impl AsRef<[u8]>);
-    fn checksum(&self) -> Vec<u8>;
+    fn as_bytes(&self) -> &[u8];
 }
 
+/// A LtHash checksum with 16 bits per chunk and 1024 chunks.
 pub struct LtHash16<H: ExtendableOutput + Default> {
-    checksum: [u8; 2048],
+    checksum: [u16; 1024],
     hasher: PhantomData<H>,
 }
 
@@ -18,10 +20,6 @@ impl<H> LtHash16<H>
 where
     H: ExtendableOutput + Default,
 {
-    pub fn as_bytes(&self) -> &[u8; 2048] {
-        &self.checksum
-    }
-
     fn hash_object(&mut self, object: impl AsRef<[u8]>) -> [u8; 2048] {
         let mut output = [0u8; 2048];
         H::digest_xof(object, output.as_mut());
@@ -35,7 +33,7 @@ where
 {
     fn default() -> Self {
         Self {
-            checksum: [0; 2048],
+            checksum: [0; 1024],
             hasher: Default::default(),
         }
     }
@@ -49,12 +47,11 @@ where
         let hashed = self.hash_object(element);
         let mut i = 0;
         while i < 2048 {
-            let xi = &self.checksum[i..i + 2];
+            let xi = &self.checksum[i / 2];
             let yi = &hashed[i..i + 2];
-            let xi = LittleEndian::read_u16(xi);
-            let yi = LittleEndian::read_u16(yi);
+            let yi = read_u16(yi);
             let sum = xi.wrapping_add(yi);
-            LittleEndian::write_u16(&mut self.checksum[i..i + 2], sum);
+            self.checksum[i / 2] = sum;
             i += 2;
         }
     }
@@ -63,17 +60,16 @@ where
         let hashed = self.hash_object(element);
         let mut i = 0;
         while i < 2048 {
-            let xi = &self.checksum[i..i + 2];
+            let xi = &self.checksum[i / 2];
             let yi = &hashed[i..i + 2];
-            let xi = LittleEndian::read_u16(xi);
-            let yi = LittleEndian::read_u16(yi);
+            let yi = read_u16(yi);
             let diff = xi.wrapping_sub(yi);
-            LittleEndian::write_u16(&mut self.checksum[i..i + 2], diff);
+            self.checksum[i / 2] = diff;
             i += 2;
         }
     }
-
-    fn checksum(&self) -> Vec<u8> {
-        self.checksum.to_vec()
+    
+    fn as_bytes(&self) -> &[u8] {
+        bytemuck::bytes_of(&self.checksum)
     }
 }
