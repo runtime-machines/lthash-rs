@@ -5,11 +5,6 @@ on:
   push:
     branches:
       - main
-
-# uncomment this in pair with the script to start the postgres database
-# env:
-#   DATABASE_URL: postgres://postgres:password@localhost:5432/rtmmanagerdb
-
 jobs:
   ci:
     name: CI Pipeline
@@ -46,14 +41,6 @@ jobs:
       # Cache .cargo and target dirs
       - uses: Swatinem/rust-cache@v2
 
-      # Cache also the home/runner/.cargo directory where sqlx-cli is being installed (≈200MB)
-      - name: Cache SQLX-cli
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cargo/
-          key: ${{ runner.os }}-sqlx-${{ env.SQLX_VERSION }}
-
       - name: Rustup stable
         run: rustup default stable
       
@@ -70,34 +57,6 @@ jobs:
         with:
           command: doc
           args: --no-deps --document-private-items --all-features --workspace --examples
-      
-      # Install SQLX-cli
-      - name: Install sqlx-cli
-        uses: actions-rs/cargo@v1
-        with:
-          command: install
-          args: >
-            sqlx-cli
-      
-      # Script to start and make migrations to a local postgres DB
-      # -----
-      # echo ">> Starting Postgres ..."
-      # docker run \
-      #         -d --name postgres \
-      #         -p 5432:5432 \
-      #         -e POSTGRES_USER=${POSTGRES_USER} -e POSTGRES_PASSWORD=${POSTGRES_PASSWORD} \
-      #         -e POSTGRES_DB=rtmmanagerdb \
-      #         postgres
-      # docker start postgres
-      # echo ">> Starting Postgres: > sqlx database create ..."
-      # sqlx database create
-      # echo ">> Starting Postgres: > sqlx migrate run ..."
-      # sqlx migrate run --source ./migrations
-      # -----
-      # - name: Migrate database
-      #   run: |
-      #     sudo apt-get install libpq-dev -y
-      #     ./scripts/run.sh
 
       # Run clippy
       - name: Clippy check
@@ -105,10 +64,6 @@ jobs:
         with:
           command: clippy
           args: --all-targets --all-features --workspace -- -D warnings
-
-      # - name: Check sqlx-data.json is up-to-date
-      #   run: |
-      #     cargo sqlx prepare --check -- --bin rtm-manager
 
       # Run test
       - name: Cargo Test
