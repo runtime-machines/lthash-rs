@@ -32,3 +32,21 @@ name = "remove"
 path = "fuzz_targets/remove.rs"
 test = false
 doc = false
+
+[[bin]]
+name = "extend"
+path = "fuzz_targets/extend.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "collect"
+path = "fuzz_targets/collect.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "try_from_bytes"
+path = "fuzz_targets/try_from_bytes.rs"
+test = false
+doc = false
