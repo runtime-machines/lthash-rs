@@ -7,7 +7,7 @@ const HASH: &str = include_str!("./test-data/lorum-hash.txt");
 type LtHash16 = lthash_rs::LtHash16<Shake128>;
 
 #[test]
-fn add_sub_object() {
+fn insert_remove_object() {
     let mut lthash = LtHash16::new();
     let elements = ["apple", "banana", "kiwi"];
     lthash.insert(elements[0]);
@@ -17,11 +17,11 @@ fn add_sub_object() {
     let mut lthash_bis = LtHash16::new();
     lthash_bis.insert(elements[0]);
     lthash_bis.insert(elements[2]);
-    assert_eq!(lthash.as_bytes(), lthash_bis.as_bytes());
+    assert_eq!(lthash.into_bytes(), lthash_bis.into_bytes());
 }
 
 #[test]
-fn add_with_extend_sub_object() {
+fn insert_with_extend_remove_object() {
     let mut lthash = LtHash16::new();
 
     let objects = vec!["apple", "banana", "kiwi"];
@@ -35,7 +35,7 @@ fn add_with_extend_sub_object() {
 }
 
 #[test]
-fn lorum_ipsum_add() {
+fn lorum_ipsum_insert() {
     let mut lthash = LtHash16::new();
     for object in LORUM.lines() {
         lthash.insert(object);
@@ -45,10 +45,71 @@ fn lorum_ipsum_add() {
 }
 
 #[test]
-fn lorum_ipsum_add_with_extend() {
+fn lorum_ipsum_insert_with_extend() {
     let mut lthash = LtHash16::new();
 
     lthash.extend(LORUM.lines());
 
     assert_eq!(lthash.to_hex_string(), HASH.trim());
+}
+
+#[test]
+fn union() {
+    let mut left = LtHash16::new();
+    left.insert("hello");
+
+    let mut right = LtHash16::new();
+    right.insert("world");
+
+    assert_eq!(left.union(&right), LtHash16::from_iter(["hello", "world"]));
+}
+
+#[test]
+fn bitor() {
+    let mut left = LtHash16::new();
+    left.insert("hello");
+
+    let mut right = LtHash16::new();
+    right.insert("world");
+
+    assert_eq!(&left | &right, LtHash16::from_iter(["hello", "world"]));
+    assert_eq!(left | right, LtHash16::from_iter(["hello", "world"]));
+}
+
+#[test]
+fn difference() {
+    let mut left = LtHash16::new();
+    left.extend(["hello", "world"]);
+
+    let mut right = LtHash16::new();
+    right.insert("world");
+
+    assert_eq!(left.difference(&right), LtHash16::from_iter(["hello"]));
+}
+
+#[test]
+fn sub() {
+    let mut left = LtHash16::new();
+    left.extend(["hello", "world"]);
+
+    let mut right = LtHash16::new();
+    right.insert("world");
+
+    assert_eq!(&left - &right, LtHash16::from_iter(["hello"]));
+    assert_eq!(left - right, LtHash16::from_iter(["hello"]));
+}
+
+#[test]
+fn into_from_bytes() {
+    let mut left = LtHash16::new();
+    left.extend(["hello", "world"]);
+
+    let bytes = left.into_bytes();
+
+    let right = LtHash16::try_from(bytes.as_ref()).unwrap();
+
+    let mut left = LtHash16::new();
+    left.extend(["hello", "world"]);
+
+    assert_eq!(left, right);
 }
