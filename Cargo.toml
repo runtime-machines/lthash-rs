@@ -7,6 +7,17 @@ repository = "https://github.com/runtime-machines/lthash-rs"
 authors = ["Roberto Ripamonti <roberto.ripamonti@ymail.com>", "RunTime Machines <hello@runtimemachines.com"]
 license = "Apache-2.0"
 readme = "README.md"
+homepage = "https://runtimemachines.io"
+keywords = ["crypto", "homomorphic", "hash"]
+categories = ["cryptography"]
+include = [
+    "/benches/**",
+    "/Cargo.toml",
+    "/LICENSE.md",
+    "/README.md",
+    "/src/**",
+    "/tests/**",
+]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
