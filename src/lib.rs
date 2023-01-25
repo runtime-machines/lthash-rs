@@ -1,1 +1,3 @@
-pub mod lthash;
+mod lthash;
+
+pub use lthash::*;

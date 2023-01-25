@@ -9,14 +9,14 @@ pub trait LtHash {
     fn checksum(&self) -> Vec<u8>;
 }
 
-pub struct LtHash16<T: ExtendableOutput + Default> {
+pub struct LtHash16<H: ExtendableOutput + Default> {
     checksum: [u8; 2048],
-    hasher: PhantomData<T>,
+    hasher: PhantomData<H>,
 }
 
-impl<T> LtHash16<T>
+impl<H> LtHash16<H>
 where
-    T: ExtendableOutput + Default,
+    H: ExtendableOutput + Default,
 {
     pub fn as_bytes(&self) -> &[u8; 2048] {
         &self.checksum
@@ -24,14 +24,14 @@ where
 
     fn hash_object(&mut self, object: impl AsRef<[u8]>) -> [u8; 2048] {
         let mut output = [0u8; 2048];
-        T::digest_xof(object, output.as_mut());
+        H::digest_xof(object, output.as_mut());
         output
     }
 }
 
-impl<T> Default for LtHash16<T>
+impl<H> Default for LtHash16<H>
 where
-    T: ExtendableOutput + Default,
+    H: ExtendableOutput + Default,
 {
     fn default() -> Self {
         Self {
@@ -41,9 +41,9 @@ where
     }
 }
 
-impl<T> LtHash for LtHash16<T>
+impl<H> LtHash for LtHash16<H>
 where
-    T: ExtendableOutput + Default,
+    H: ExtendableOutput + Default,
 {
     fn insert(&mut self, element: impl AsRef<[u8]>) {
         let hashed = self.hash_object(element);
