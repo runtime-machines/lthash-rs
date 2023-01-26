@@ -22,31 +22,61 @@ members = ["."]
 debug = 1
 
 [[bin]]
-name = "insert"
-path = "fuzz_targets/insert.rs"
+name = "lthash16_insert"
+path = "fuzz_targets/lthash16_insert.rs"
 test = false
 doc = false
 
 [[bin]]
-name = "remove"
-path = "fuzz_targets/remove.rs"
+name = "lthash16_remove"
+path = "fuzz_targets/lthash16_remove.rs"
 test = false
 doc = false
 
 [[bin]]
-name = "extend"
-path = "fuzz_targets/extend.rs"
+name = "lthash16_extend"
+path = "fuzz_targets/lthash16_extend.rs"
 test = false
 doc = false
 
 [[bin]]
-name = "collect"
-path = "fuzz_targets/collect.rs"
+name = "lthash16_collect"
+path = "fuzz_targets/lthash16_collect.rs"
 test = false
 doc = false
 
 [[bin]]
-name = "try_from_bytes"
-path = "fuzz_targets/try_from_bytes.rs"
+name = "lthash16_try_from_bytes"
+path = "fuzz_targets/lthash16_try_from_bytes.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "lthash32_insert"
+path = "fuzz_targets/lthash32_insert.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "lthash32_remove"
+path = "fuzz_targets/lthash32_remove.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "lthash32_extend"
+path = "fuzz_targets/lthash32_extend.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "lthash32_collect"
+path = "fuzz_targets/lthash32_collect.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "lthash32_try_from_bytes"
+path = "fuzz_targets/lthash32_try_from_bytes.rs"
 test = false
 doc = false
