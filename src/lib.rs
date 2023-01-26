@@ -1,7 +1,9 @@
 mod lthash16;
+mod lthash32;
 mod utils;
 
 pub use lthash16::*;
+pub use lthash32::*;
 
 /// Generic trait for LtHash, these functions will be implemented by all the instances of LtHash (e.g., if LtHash32 is implemented)
 pub trait LtHash {
