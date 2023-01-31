@@ -39,7 +39,7 @@ fn extend<M: MeasurementName>(c: &mut Criterion<M>) {
     let name = M::name();
 
     let mut extend_benchmark_group =
-        c.benchmark_group(format!("extend_{}_100", name));
+        c.benchmark_group(format!("extend_{name}_100"));
 
     extend_benchmark_group
         .sample_size(1000)
@@ -48,7 +48,7 @@ fn extend<M: MeasurementName>(c: &mut Criterion<M>) {
     extend_group(extend_benchmark_group, 100);
 
     let mut extend_benchmark_group =
-        c.benchmark_group(format!("extend_{}_10000", name));
+        c.benchmark_group(format!("extend_{name}_10000"));
 
     extend_benchmark_group
         .sample_size(100)
@@ -57,7 +57,7 @@ fn extend<M: MeasurementName>(c: &mut Criterion<M>) {
     extend_group(extend_benchmark_group, 10000);
 
     let mut extend_benchmark_group =
-        c.benchmark_group(format!("extend_{}_100000", name));
+        c.benchmark_group(format!("extend_{name}_100000"));
 
     extend_benchmark_group
         .sample_size(20)
