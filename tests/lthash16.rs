@@ -113,3 +113,23 @@ fn into_from_bytes() {
 
     assert_eq!(left, right);
 }
+
+#[test]
+fn reset() {
+    let mut reset_lthash = LtHash16::new();
+    reset_lthash.extend(["hello", "world"]);
+    reset_lthash.reset();
+
+    let new_lthash = LtHash16::new();
+
+    assert_eq!(reset_lthash, new_lthash);
+}
+
+#[test]
+fn invalid_bytes_try_from() {
+    let bytes = vec![0u8, 1u8];
+
+    let lthash = LtHash16::try_from(bytes.as_ref());
+
+    assert!(lthash.is_err())
+}
