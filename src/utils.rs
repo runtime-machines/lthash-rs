@@ -28,3 +28,30 @@ pub fn read_u16(buf: &[u8]) -> u16 {
         LittleEndian::read_u16(buf)
     }
 }
+
+pub struct HexDisplayRef32<'a>(pub &'a [u32]);
+
+impl fmt::Display for HexDisplayRef32<'_> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        for x in self.0 {
+            // we need to swap here to *display* LE order
+            write!(f, "{:08x}", x.swap_bytes())?;
+        }
+
+        Ok(())
+    }
+}
+
+impl fmt::Debug for HexDisplayRef32<'_> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{self}")
+    }
+}
+
+pub fn read_u32(buf: &[u8]) -> u32 {
+    if cfg!(target_endian = "big") {
+        BigEndian::read_u32(buf)
+    } else {
+        LittleEndian::read_u32(buf)
+    }
+}

@@ -82,7 +82,7 @@ fn extend_group<M: Measurement>(mut group: BenchmarkGroup<M>, objects: usize) {
                 |b, input| {
                     b.iter(|| {
                         let mut test =
-                            lthash_rs::LtHash16::<sha3::Shake128>::new();
+                            lthash_rs::LtHash32::<sha3::Shake128>::new();
                         test.extend(input)
                     })
                 },
@@ -112,7 +112,7 @@ fn insert<M: MeasurementName>(c: &mut Criterion<M>) {
                 |b, input| {
                     b.iter(|| {
                         let mut test =
-                            lthash_rs::LtHash16::<sha3::Shake128>::new();
+                            lthash_rs::LtHash32::<sha3::Shake128>::new();
                         test.insert(input)
                     })
                 },
@@ -126,7 +126,7 @@ fn insert<M: MeasurementName>(c: &mut Criterion<M>) {
                 |b, input| {
                     b.iter(|| {
                         let mut test =
-                            lthash_rs::LtHash16::<sha3::Shake256>::new();
+                            lthash_rs::LtHash32::<sha3::Shake256>::new();
                         test.insert(input)
                     })
                 },
@@ -136,7 +136,7 @@ fn insert<M: MeasurementName>(c: &mut Criterion<M>) {
 
 fn criterion_benchmark(c: &mut Criterion) {
     c.bench_function("new", |b| {
-        b.iter(lthash_rs::LtHash16::<sha3::Shake128>::new)
+        b.iter(lthash_rs::LtHash32::<sha3::Shake128>::new)
     });
 }
 
