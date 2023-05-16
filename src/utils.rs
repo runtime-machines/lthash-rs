@@ -1,6 +1,7 @@
 use std::fmt;
 
 use byteorder::{BigEndian, ByteOrder, LittleEndian};
+use num_traits::PrimInt;
 
 pub struct HexDisplayRef16<'a>(pub &'a [u16]);
 
@@ -54,4 +55,17 @@ pub fn read_u32(buf: &[u8]) -> u32 {
     } else {
         LittleEndian::read_u32(buf)
     }
+}
+
+pub(crate) fn into_bytes<T: bytemuck::Pod + PrimInt>(
+    mut checksum: [T; 1024],
+) -> Vec<u8> {
+    // pessimization for big endian platforms, byte swapping is required because the words are currently in big endian order and need to be reversed.
+    if cfg!(target_endian = "big") {
+        for elem in &mut checksum {
+            *elem = elem.swap_bytes();
+        }
+    }
+
+    bytemuck::bytes_of(&checksum).to_vec()
 }
