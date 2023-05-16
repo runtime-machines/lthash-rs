@@ -7,8 +7,6 @@ use criterion::{
     BenchmarkGroup, BenchmarkId, Criterion, Throughput,
 };
 
-use criterion_cycles_per_byte::CyclesPerByte;
-
 fn gen_bytes(length: usize) -> Box<[u8]> {
     let elem: Vec<_> = b"hello-world"
         .iter()
@@ -26,12 +24,6 @@ trait MeasurementName: Measurement {
 impl MeasurementName for WallTime {
     fn name() -> &'static str {
         "wall-time"
-    }
-}
-
-impl MeasurementName for CyclesPerByte {
-    fn name() -> &'static str {
-        "cycles-per-byte"
     }
 }
 
@@ -142,10 +134,29 @@ fn criterion_benchmark(c: &mut Criterion) {
 
 criterion_group!(wall, criterion_benchmark, insert, extend);
 
-criterion_group!(
-    name = cycles;
-    config = Criterion::default().with_measurement(CyclesPerByte);
-    targets = insert, extend
-);
+cfg_if::cfg_if! {
+    if #[cfg(any(target_arch = "x86_64", target_arch = "x86"))] {
+        use criterion_cycles_per_byte::CyclesPerByte;
+
+        impl MeasurementName for CyclesPerByte {
+            fn name() -> &'static str {
+                "cycles-per-byte"
+            }
+        }
+
+        criterion_group!(
+            name = cycles;
+            config = Criterion::default().with_measurement(CyclesPerByte);
+            targets = insert, extend
+        );
+
+    } else {
+        criterion_group!(
+            name = cycles;
+            config = Criterion::default();
+            targets = insert, extend
+        );
+    }
+}
 
 criterion_main!(wall, cycles);
