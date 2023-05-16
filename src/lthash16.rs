@@ -3,7 +3,7 @@ use std::marker::PhantomData;
 use digest::ExtendableOutput;
 
 use crate::{
-    utils::{read_u16, HexDisplayRef16, into_bytes},
+    utils::{into_bytes, read_u16, HexDisplayRef16},
     LtHash,
 };
 
@@ -173,7 +173,7 @@ where
 
     /// Converts self into the inner list of bytes
     fn into_bytes(self) -> Vec<u8> {
-       into_bytes(self.checksum)
+        into_bytes(self.checksum)
     }
 }
 
