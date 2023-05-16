@@ -3,19 +3,25 @@ use std::marker::PhantomData;
 use digest::ExtendableOutput;
 
 use crate::{
-    utils::{read_u32, HexDisplayRef32},
+    utils::{into_bytes, read_u32, HexDisplayRef32},
     LtHash,
 };
 
 /// A LtHash checksum with 32 bits per chunk and 1024 chunks.
 #[derive(Clone, Copy)]
 pub struct LtHash32<H> {
-    checksum: [u32; 1024],
+    pub(crate) checksum: [u32; 1024],
     hasher: PhantomData<H>,
 }
 
 // Ensure we don't accidentally remove Send/Sync, since LtHash32 should be Send/Sync.
 static_assertions::assert_impl_all!(LtHash32<()>: Send, Sync, Unpin);
+
+impl<H> LtHash32<H> {
+    pub(crate) const fn name(&self) -> &'static str {
+        "LtHash32"
+    }
+}
 
 impl<H> LtHash32<H>
 where
@@ -167,19 +173,7 @@ where
 
     /// Converts self into the inner list of bytes
     fn into_bytes(self) -> Vec<u8> {
-        let Self {
-            mut checksum,
-            hasher: _,
-        } = self;
-
-        // pessimization for big endian platforms, byte swapping is required because the words are currently in big endian order and need to be reversed.
-        if cfg!(target_endian = "big") {
-            for elem in &mut checksum {
-                *elem = elem.swap_bytes();
-            }
-        }
-
-        bytemuck::bytes_of(&checksum).to_vec()
+        into_bytes(self.checksum)
     }
 }
 
@@ -205,86 +199,5 @@ impl<H> TryFrom<&[u8]> for LtHash32<H> {
             checksum,
             hasher: PhantomData,
         })
-    }
-}
-
-impl<A, H> Extend<A> for LtHash32<H>
-where
-    A: AsRef<[u8]>,
-    H: ExtendableOutput + Default,
-{
-    fn extend<T: IntoIterator<Item = A>>(&mut self, iter: T) {
-        for item in iter {
-            self.insert(item);
-        }
-    }
-}
-
-impl<H> PartialEq for LtHash32<H> {
-    fn eq(&self, other: &Self) -> bool {
-        subtle::ConstantTimeEq::ct_eq(&self.checksum[..], &other.checksum[..])
-            .into()
-    }
-}
-
-impl<H> core::fmt::Debug for LtHash32<H> {
-    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        write!(f, "LtHash32 {:?}", &self.checksum)
-    }
-}
-
-impl<A, H> FromIterator<A> for LtHash32<H>
-where
-    A: AsRef<[u8]>,
-    H: ExtendableOutput + Default,
-{
-    fn from_iter<T: IntoIterator<Item = A>>(iter: T) -> Self {
-        let mut this = Self::default();
-        this.extend(iter);
-        this
-    }
-}
-
-impl<'a, H> std::ops::BitOr for &'a LtHash32<H>
-where
-    H: ExtendableOutput + Default,
-{
-    type Output = LtHash32<H>;
-
-    fn bitor(self, rhs: Self) -> Self::Output {
-        self.union(rhs)
-    }
-}
-
-impl<H> std::ops::BitOr for LtHash32<H>
-where
-    H: ExtendableOutput + Default,
-{
-    type Output = Self;
-
-    fn bitor(self, rhs: Self) -> Self::Output {
-        self.union(&rhs)
-    }
-}
-
-impl<'a, H> std::ops::Sub for &'a LtHash32<H>
-where
-    H: ExtendableOutput + Default,
-{
-    type Output = LtHash32<H>;
-
-    fn sub(self, rhs: Self) -> Self::Output {
-        self.difference(rhs)
-    }
-}
-
-impl<H> std::ops::Sub for LtHash32<H>
-where
-    H: ExtendableOutput + Default,
-{
-    type Output = Self;
-
-    fn sub(self, rhs: Self) -> Self::Output {
-        self.difference(&rhs)
     }
 }
