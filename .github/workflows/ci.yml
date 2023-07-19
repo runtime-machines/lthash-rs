@@ -5,11 +5,8 @@ on:
   push:
     branches:
       - main
-
-# uncomment this in pair with the script to start the postgres database
-# env:
-#   DATABASE_URL: postgres://postgres:password@localhost:5432/rtmmanagerdb
-
+  workflow_dispatch:
+  
 jobs:
   ci:
     name: CI Pipeline
@@ -21,7 +18,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # https://github.com/webfactory/ssh-agent#support-for-github-deploy-keys
+      # https://github.com/runtime-machines/wiki/blob/main/devops/gh_actions/webfactory_ssh-agent.md#how-to-add-a-new-external-private-dependency-to-a-repository-pipeline
       # - uses: webfactory/ssh-agent@v0.7.0
       #   with:
       #     ssh-private-key: |
@@ -35,27 +32,17 @@ jobs:
           toolchain: stable
           profile: minimal
           override: true
-          components: rustfmt, clippy
+          components: rustfmt, clippy, llvm-tools-preview
       
-      - name: Install Rust toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: nightly
-          profile: minimal
-      
-      # Cache .cargo and target dirs
-      - uses: Swatinem/rust-cache@v2
-
-      # Cache also the home/runner/.cargo directory where sqlx-cli is being installed (≈200MB)
-      - name: Cache SQLX-cli
-        uses: actions/cache@v3
+      - name: Restore cached
+        id: cache-restore
+        uses: actions/cache/restore@v3
         with:
           path: |
             ~/.cargo/
-          key: ${{ runner.os }}-sqlx-${{ env.SQLX_VERSION }}
-
-      - name: Rustup stable
-        run: rustup default stable
+            ./.cargo/
+            ./target/
+          key: ${{ runner.os }}-cargo-lock${{ hashFiles('**Cargo.lock') }}:toml${{ hashFiles('**Cargo.toml') }}
       
       # Run Format and Docs checks (without SQLX)
       - name: Check formatting
@@ -71,33 +58,13 @@ jobs:
           command: doc
           args: --no-deps --document-private-items --all-features --workspace --examples
       
-      # Install SQLX-cli
-      - name: Install sqlx-cli
+      # Install grcov
+      - name: Install grcov
         uses: actions-rs/cargo@v1
         with:
           command: install
           args: >
-            sqlx-cli
-      
-      # Script to start and make migrations to a local postgres DB
-      # -----
-      # echo ">> Starting Postgres ..."
-      # docker run \
-      #         -d --name postgres \
-      #         -p 5432:5432 \
-      #         -e POSTGRES_USER=${POSTGRES_USER} -e POSTGRES_PASSWORD=${POSTGRES_PASSWORD} \
-      #         -e POSTGRES_DB=rtmmanagerdb \
-      #         postgres
-      # docker start postgres
-      # echo ">> Starting Postgres: > sqlx database create ..."
-      # sqlx database create
-      # echo ">> Starting Postgres: > sqlx migrate run ..."
-      # sqlx migrate run --source ./migrations
-      # -----
-      # - name: Migrate database
-      #   run: |
-      #     sudo apt-get install libpq-dev -y
-      #     ./scripts/run.sh
+            grcov
 
       # Run clippy
       - name: Clippy check
@@ -105,11 +72,7 @@ jobs:
         with:
           command: clippy
           args: --all-targets --all-features --workspace -- -D warnings
-
-      # - name: Check sqlx-data.json is up-to-date
-      #   run: |
-      #     cargo sqlx prepare --check -- --bin rtm-manager
-
+          
       # Run test
       - name: Cargo Test
         uses: actions-rs/cargo@v1
@@ -118,21 +81,21 @@ jobs:
           args: --all-features --workspace
         env: 
           ENVIRONMENT: local
+          RUSTFLAGS: -C instrument-coverage
 
-      # Run tests + coverage
-      - name: Coverage
-        uses: actions-rs/cargo@v1
+      - name: Save Cache
+        id: cache-save
+        uses: actions/cache/save@v3
         with:
-          command: test
-          args: --all-features --no-fail-fast --workspace
-          toolchain: nightly
-        env:
-          ENVIRONMENT: local
-          CARGO_INCREMENTAL: '0'
-          RUSTFLAGS: '-Zprofile -Ccodegen-units=1 -Copt-level=0 -Clink-dead-code -Coverflow-checks=off -Zpanic_abort_tests -Cpanic=abort'
-          RUSTDOCFLAGS: '-Zprofile -Ccodegen-units=1 -Copt-level=0 -Clink-dead-code -Coverflow-checks=off -Zpanic_abort_tests -Cpanic=abort'
+          path: |
+            ~/.cargo/
+            ./.cargo/
+            ./target/
+          key: ${{ steps.cache-restore.outputs.cache-primary-key }}
 
-      - uses: actions-rs/grcov@v0.1
+      - name: grcov
+        run: grcov . --binary-path ./target/debug/ -s . -t lcov --branch --ignore-not-existing --ignore "*cargo*" -o ./lcov.info
+
       - name: Codecov
         uses: codecov/codecov-action@v3
         with:

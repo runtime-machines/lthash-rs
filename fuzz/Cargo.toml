@@ -1,0 +1,82 @@
+[package]
+name = "lthash-rs-fuzz"
+version = "0.0.0"
+publish = false
+edition = "2021"
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "0.4"
+sha3 = "0.10"
+
+[dependencies.lthash-rs]
+path = ".."
+
+# Prevent this from interfering with workspaces
+[workspace]
+members = ["."]
+
+[profile.release]
+debug = 1
+
+[[bin]]
+name = "lthash16_insert"
+path = "fuzz_targets/lthash16_insert.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "lthash16_remove"
+path = "fuzz_targets/lthash16_remove.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "lthash16_extend"
+path = "fuzz_targets/lthash16_extend.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "lthash16_collect"
+path = "fuzz_targets/lthash16_collect.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "lthash16_try_from_bytes"
+path = "fuzz_targets/lthash16_try_from_bytes.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "lthash32_insert"
+path = "fuzz_targets/lthash32_insert.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "lthash32_remove"
+path = "fuzz_targets/lthash32_remove.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "lthash32_extend"
+path = "fuzz_targets/lthash32_extend.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "lthash32_collect"
+path = "fuzz_targets/lthash32_collect.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "lthash32_try_from_bytes"
+path = "fuzz_targets/lthash32_try_from_bytes.rs"
+test = false
+doc = false

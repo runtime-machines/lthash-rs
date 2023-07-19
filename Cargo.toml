@@ -1,14 +1,46 @@
 [package]
 name = "lthash-rs"
-version = "0.0.1"
+version = "1.0.0"
 edition = "2021"
 description = "LtHash - Homomorphic Hash Function"
 repository = "https://github.com/runtime-machines/lthash-rs"
 authors = ["Roberto Ripamonti <roberto.ripamonti@ymail.com>", "RunTime Machines <hello@runtimemachines.com"]
 license = "Apache-2.0"
-license-file = "LICENSE.md"
 readme = "README.md"
+homepage = "https://runtimemachines.io"
+keywords = ["crypto", "homomorphic", "hash"]
+categories = ["cryptography"]
+include = [
+    "/benches/**",
+    "/Cargo.toml",
+    "/LICENSE.md",
+    "/README.md",
+    "/src/**",
+    "/tests/**",
+]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+digest = "0.10.6"
+byteorder = "1"
+bytemuck = "1.13.0"
+subtle = "2.4.1"
+static_assertions = "1.1.0"
+num-traits = "0.2.15"
+
+[dev-dependencies]
+sha3 = "0.10"
+criterion = { version = "0.4", features = ["html_reports"] }
+cfg-if = "1.0.0"
+
+[target.'cfg(any(target_arch = "x86_64", target_arch = "x86"))'.dev-dependencies]
+criterion-cycles-per-byte = { version = "0.4" }
+
+[[bench]]
+name = "lthash16_performance"
+harness = false
+
+[[bench]]
+name = "lthash32_performance"
+harness = false
