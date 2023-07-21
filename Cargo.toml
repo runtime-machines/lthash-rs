@@ -35,7 +35,7 @@ criterion = { version = "0.4", features = ["html_reports"] }
 cfg-if = "1.0.0"
 
 [target.'cfg(any(target_arch = "x86_64", target_arch = "x86"))'.dev-dependencies]
-criterion-cycles-per-byte = { version = "0.4" }
+criterion-cycles-per-byte = { version = "0.5" }
 
 [[bench]]
 name = "lthash16_performance"
