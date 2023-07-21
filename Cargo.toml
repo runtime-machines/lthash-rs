@@ -31,7 +31,7 @@ num-traits = "0.2.15"
 
 [dev-dependencies]
 sha3 = "0.10"
-criterion = { version = "0.4", features = ["html_reports"] }
+criterion = { version = "0.5", features = ["html_reports"] }
 cfg-if = "1.0.0"
 
 [target.'cfg(any(target_arch = "x86_64", target_arch = "x86"))'.dev-dependencies]
