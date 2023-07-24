@@ -1,9 +1,24 @@
-# lthash-rs
-
-[![CI](https://github.com/runtime-machines/lthash-rs/workflows/CI/badge.svg)](https://github.com/runtime-machines/lthash-rs/actions)
-[![codecov](https://codecov.io/github/runtime-machines/lthash-rs/branch/main/graph/badge.svg?token=ROR5OUTHJ5)](https://codecov.io/github/runtime-machines/lthash-rs)
-
+<h1 align="center">lthash-rs</h1>
+</br>
 <div align="center">
+<!-- Version -->
+  <a href="https://crates.io/crates/lthash-rs">
+    <img src="https://img.shields.io/crates/v/lthash-rs"
+    alt="Crates.io version" />
+  </a>
+  <!-- Docs -->
+  <a href="https://docs.rs/lthash-rs">
+    <img src="https://img.shields.io/badge/docs-latest-blue.svg?style=flat-square"
+      alt="docs.rs docs" />
+  </a>
+  <!-- Downloads -->
+  <a href="https://crates.io/crates/lthash-rs">
+    <img src="https://img.shields.io/crates/d/lthash-rs"
+      alt="Download" />
+  </a>
+  </div>
+<br />
+  <div align="center">
   <small>Built by the <a href="https://runtimemachines.io">RunTime Machines team</a></small>
 </div>
 
