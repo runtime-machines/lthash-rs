@@ -16,7 +16,7 @@ jobs:
       SQLX_FEATURES: "rustls, postgres"
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # https://github.com/runtime-machines/wiki/blob/main/devops/gh_actions/webfactory_ssh-agent.md#how-to-add-a-new-external-private-dependency-to-a-repository-pipeline
       # - uses: webfactory/ssh-agent@v0.7.0
